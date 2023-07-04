@@ -1,0 +1,27 @@
+POST /v1/file
+@startuml
+
+actor       Actor           as user
+participant Gateway         as gw
+database    "Gateway DB"    as gw_db
+participant Storage         as st
+collections  FileSystem      as fs
+
+user -> gw : POST /v1/files
+group sql transaction
+    gw -> gw_db : LockServers
+    gw -> gw_db : GetServersUsages
+    note over gw: calculates chunks
+    gw -> gw_db : StoreFile
+    gw -> gw_db : StoreChunks
+end
+
+loop chunks are processed concurrently
+    gw -> st : POST /v1/chunks
+    st -> fs : stores chunk as file
+    st -> gw : response
+    gw -> gw_db : UpdateChunkIsUploaded
+end
+gw -> gw_db : UpdateFileIsUploaded
+gw -> user : file JSON
+@enduml

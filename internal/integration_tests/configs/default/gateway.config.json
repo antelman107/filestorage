@@ -1,0 +1,11 @@
+{
+  "concurrency": 2,
+  "http": {
+    "listenPort": ":9090"
+  },
+  "db": {
+    "host": "localhost",
+    "user": "filestorage",
+    "database": "filestorage_gateway"
+  }
+}

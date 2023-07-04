@@ -1,0 +1,38 @@
+@startuml
+' hide the spot
+' hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "chunks" as chunks {
+  *id : UUID <<generated>>
+  --
+  file_id : UUID
+  server_id : UUID
+  index : INTEGER
+  size : INTEGER
+  is_uploaded: BOOLEAN
+  hash: TEXT
+  created_at: TIMESTAMP
+}
+
+entity "files" as files {
+  *id : UUID <<generated>>
+  --
+  name : TEXT
+  size : INTEGER
+  is_uploaded: BOOLEAN
+  created_at: TIMESTAMP
+}
+
+entity "servers" as servers {
+  *id : UUID <<generated>>
+  --
+  url : TEXT
+  created_at: TIMESTAMP
+}
+
+chunks ||..o{ files
+chunks ||..o{ servers
+@enduml

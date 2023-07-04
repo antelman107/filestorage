@@ -1,0 +1,28 @@
+GET /v1/file/:id/content
+@startuml
+
+
+actor       Actor           as user
+participant Gateway         as gw
+database    "Gateway DB"    as gw_db
+participant Storage         as st
+collections  FileSystem     as fs
+
+user -> gw : GET /v1/files/:id/content
+gw <-> gw_db : GetUploadedFIle
+group if file is not found
+    gw -> user: 404 response
+end
+gw <-> gw_db : GetChunksByFileID
+
+loop chunks are requested sequentially
+    gw -> st : GET /v1/chunks/:chunk_id
+    st <-> fs : reads chunk file
+    st -> gw : response
+    group if hash is invalid
+        gw -> user: 500 response
+    end
+    gw <-> gw_db : GetChunksByFileID
+end
+gw -> user : 200, file binary content
+@enduml

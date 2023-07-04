@@ -1,0 +1,11 @@
+GET /v1/file/:id/content
+@startuml
+
+actor       Actor           as user
+participant Gateway         as gw
+database    "Gateway DB"    as gw_db
+
+user -> gw : POST /v1/servers
+gw -> gw_db : StoreServer
+gw -> user : server JSON
+@enduml

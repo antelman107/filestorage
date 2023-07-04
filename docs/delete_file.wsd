@@ -1,0 +1,29 @@
+DELETE /v1/file/:id
+@startuml
+
+
+actor       Actor           as user
+participant Gateway         as gw
+database    "Gateway DB"    as gw_db
+participant Storage         as st
+collections  FileSystem     as fs
+
+
+user -> gw : DELETE /v1/files/:id
+group SQL transaction
+    gw -> gw_db : LockFile
+    group if file is not found
+        gw -> user: 404 response
+    end
+    gw <-> gw_db : GetChunksByFileID
+
+    loop chunks are iterated concurrently
+        gw -> st : GET /v1/chunks/:chunk_id
+        st -> fs : deletes chunk file
+        st -> gw : response
+        gw -> gw_db : DeleteChunk
+    end
+    gw -> gw_db : DeleteFile
+end
+gw -> user : 200, file JSON
+@enduml
